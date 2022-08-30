@@ -4,4 +4,7 @@ A*.audio.ts.txt
 A*.h264
 A*.video.ts.txt
 A*.wav
+A*.mkv
+A*.mp4
+php/
 
