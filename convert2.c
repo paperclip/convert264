@@ -60,20 +60,10 @@ int main(int ac, char **argValue)
         exit(printf("cannot open %s for reading.\n",argValue[1]));
     }
 
-    /* try to allocate a pFullBuffer size of infile */
-    fseek(rawFile,0,SEEK_END);
-    bufsiz = ftell(rawFile);
-    rewind(rawFile);
-    if(!(pFullBuffer = ( char * ) malloc(bufsiz)))
-    {
-        exit(printf("unable to allocate %d bytes\n",bufsiz));
-    }
-    p = pFullBuffer;
-
     /* open output */
 
 
-    if(!(pFilename = (char*) malloc(strlen(argValue[1])+5)))
+    if(!(pFilename = (char*) malloc(strlen(argValue[1])+20)))
     {
         exit(printf("no mem for strings\n"));
     }
@@ -90,14 +80,18 @@ int main(int ac, char **argValue)
     sprintf(pFilename,"%s.h264",pString);
     if(!(videoFile = fopen(pFilename,"wb")))
     {
-        exit(printf("cannot open %s for writing.\n",argValue[2]));
+        printf("cannot open %s for writing.\n", pFilename);
+        free(pFilename);
+        return 1;
     }
 
     //    Video Timestamp
     sprintf(pFilename,"%s.video.ts.txt",pString);
     if(!(videoTSFile = fopen(pFilename,"w")))
     {
-        exit(printf("cannot open %s for writing.\n",argValue[2]));
+        printf("cannot open %s for writing.\n", pFilename);
+        free(pFilename);
+        return 2;
     }
     fprintf ( videoTSFile, "# timestamp format v2\n" );
 
@@ -105,18 +99,37 @@ int main(int ac, char **argValue)
     sprintf(pFilename,"%s.wav",pString);
     if(!(audioFile = fopen(pFilename,"wb")))
     {
-        exit(printf("cannot open %s for writing.\n",pFilename));
+        printf("cannot open %s for writing.\n", pFilename);
+        free(pFilename);
+        return 3;
     }
 
     //    Wav Timestamp File
     sprintf(pFilename,"%s.audio.ts.txt",pString);
     if(!(audioTSFile = fopen(pFilename,"w")))
     {
-        exit(printf("cannot open %s for writing.\n",pFilename));
+        printf("cannot open %s for writing.\n", pFilename);
+        free(pFilename);
+        return 4;
     }
-    fprintf ( audioTSFile, "# timestamp format v2\n" );
 
-    fwrite(&ahead,sizeof(wav_header),1,audioFile);
+    free(pFilename);
+
+    fprintf(audioTSFile, "# timestamp format v2\n");
+    memset(&ahead, 0, sizeof(wav_header));
+    fwrite(&ahead, sizeof(wav_header), 1, audioFile);
+
+    /* try to allocate a pFullBuffer size of infile */
+    fseek(rawFile, 0, SEEK_END);
+    bufsiz = ftell(rawFile);
+    rewind(rawFile);
+    if (!(pFullBuffer = (char *)malloc(bufsiz)))
+    {
+        printf("unable to allocate %d bytes\n", bufsiz);
+        return 5;
+    }
+    p = pFullBuffer;
+
 
     /* get data */
     count = fread(pFullBuffer,1,bufsiz,rawFile);
