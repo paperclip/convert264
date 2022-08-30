@@ -214,7 +214,7 @@ int main(int ac, char **argValue)
         }
         else if(!(strncmp((char *)ccode,"HXFI",4)))
         {
-            printf("HXFI End if File\n");
+            printf("HXFI End of File\n");
             break; /* some sort of table follows */
         }
         else
